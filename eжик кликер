@@ -1,0 +1,897 @@
+            --bg: #2d4a22;<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦔 Ёжик Кликер</title>
+    <style>
+        :root {
+
+            --panel: #4a6741;
+            --gold: #f0c75e;
+            --text: #f5f0e8;
+            --accent: #8bc34a;
+            --dark: #1a2e13;
+            --card: #5c7a4a;
+            --red: #e07b5a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #3b5e2b 0%, #2d4a22 30%, #1a2e13 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            cursor: default;
+        }
+
+        /* Декоративные элементы фона */
+        .bg-decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+            font-size: 2rem;
+        }
+        .bg-leaf-1 {
+            top: 5%;
+            left: 8%;
+            animation: floatLeaf 6s ease-in-out infinite;
+            font-size: 2.5rem;
+        }
+        .bg-leaf-2 {
+            top: 15%;
+            right: 10%;
+            animation: floatLeaf 7s ease-in-out 1s infinite;
+            font-size: 2rem;
+        }
+        .bg-leaf-3 {
+            bottom: 10%;
+            left: 12%;
+            animation: floatLeaf 8s ease-in-out 2s infinite;
+            font-size: 2.8rem;
+        }
+        .bg-mushroom {
+            bottom: 8%;
+            right: 8%;
+            animation: floatLeaf 5s ease-in-out 0.5s infinite;
+            font-size: 2.2rem;
+        }
+        .bg-flower {
+            top: 25%;
+            left: 5%;
+            animation: floatLeaf 6.5s ease-in-out 1.5s infinite;
+            font-size: 1.8rem;
+        }
+
+        @keyframes floatLeaf {
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-15px) rotate(3deg);
+            }
+            50% {
+                transform: translateY(-8px) rotate(-2deg);
+            }
+            75% {
+                transform: translateY(-20px) rotate(1deg);
+            }
+        }
+
+        /* Основной контейнер */
+        .game-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 480px;
+            padding: 15px;
+        }
+
+        /* Верхняя панель */
+        .top-panel {
+            background: var(--panel);
+            border-radius: 20px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.08);
+            border: 2px solid #5a7d4a;
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+            min-width: 100px;
+            justify-content: center;
+        }
+        .score-display .icon {
+            font-size: 1.8rem;
+        }
+        .score-display .label {
+            font-size: 0.75rem;
+            color: #c5d5b8;
+            text-shadow: none;
+            font-weight: 500;
+        }
+
+        .per-click-badge {
+            background: var(--dark);
+            border-radius: 25px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            color: #bcd4a8;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid #5a7d4a;
+            font-weight: 600;
+        }
+        .per-click-badge span {
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        /* Зона ёжика */
+        .hedgehog-area {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hedgehog-area:active {
+            transform: scale(0.92);
+        }
+        .hedgehog-area.pulse-anim {
+            animation: hedgePulse 0.35s ease-out;
+        }
+
+        @keyframes hedgePulse {
+            0% {
+                transform: scale(1);
+            }
+            30% {
+                transform: scale(1.15);
+            }
+            60% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .hedgehog-wrapper {
+            position: relative;
+            background: radial-gradient(ellipse at center, #6b9e4a 0%, #3b5e2b 60%, transparent 72%);
+            border-radius: 50%;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.45));
+        }
+
+        .hedgehog-emoji {
+            font-size: 8rem;
+            transition: transform 0.05s ease;
+            position: relative;
+            z-index: 2;
+            filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.3));
+            animation: idleBounce 2.5s ease-in-out infinite;
+        }
+
+        @keyframes idleBounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-8px);
+            }
+            50% {
+                transform: translateY(0);
+            }
+            70% {
+                transform: translateY(-4px);
+            }
+            85% {
+                transform: translateY(0);
+            }
+        }
+
+        .click-indicator {
+            position: absolute;
+            pointer-events: none;
+            font-weight: 900;
+            font-size: 1.6rem;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 200, 50, 0.9), 0 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            animation: floatUp 0.9s ease-out forwards;
+            white-space: nowrap;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-50px) scale(1.4);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-110px) scale(0.6);
+            }
+        }
+
+        /* Частицы */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 9;
+            font-size: 1.2rem;
+            animation: particleBurst 0.7s ease-out forwards;
+        }
+
+        @keyframes particleBurst {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--dx), var(--dy)) scale(0.2);
+            }
+        }
+
+        /* Нижняя панель с улучшениями */
+        .upgrades-panel {
+            background: var(--panel);
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.08);
+            border: 2px solid #5a7d4a;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .upgrades-title {
+            color: #d4e8c2;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .upgrade-card {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .upgrade-card:hover {
+            border-color: #8bc34a;
+            background: #688a54;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        .upgrade-card:active {
+            transform: scale(0.97);
+        }
+        .upgrade-card.locked {
+            opacity: 0.55;
+            cursor: not-allowed;
+            filter: grayscale(25%);
+        }
+        .upgrade-card.locked:hover {
+            border-color: transparent;
+            background: var(--card);
+            transform: none;
+            box-shadow: none;
+        }
+        .upgrade-card.owned-highlight {
+            border-color: #f0c75e !important;
+            box-shadow: 0 0 15px rgba(240, 199, 94, 0.25);
+        }
+
+        .upgrade-icon {
+            font-size: 2.2rem;
+            flex-shrink: 0;
+            width: 45px;
+            text-align: center;
+        }
+        .upgrade-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .upgrade-name {
+            font-weight: 700;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+        .upgrade-desc {
+            font-size: 0.7rem;
+            color: #bcd4a8;
+            margin-top: 1px;
+        }
+        .upgrade-cost {
+            font-weight: 700;
+            color: var(--gold);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .upgrade-owned-count {
+            background: var(--dark);
+            color: #f0c75e;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+
+        /* Кнопка сброса */
+        .reset-btn {
+            background: transparent;
+            border: 1px solid #7a5a5a;
+            color: #c4a0a0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            align-self: center;
+            margin-top: 2px;
+        }
+        .reset-btn:hover {
+            background: rgba(200, 100, 100, 0.15);
+            border-color: #c47a7a;
+            color: #e0b0b0;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 400px) {
+            .hedgehog-emoji {
+                font-size: 5.5rem;
+            }
+            .hedgehog-wrapper {
+                padding: 20px;
+            }
+            .upgrade-card {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+            .upgrade-icon {
+                font-size: 1.6rem;
+                width: 35px;
+            }
+            .upgrade-name {
+                font-size: 0.8rem;
+            }
+            .score-display {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Декоративный фон -->
+    <div class="bg-decoration bg-leaf-1">🍂</div>
+    <div class="bg-decoration bg-leaf-2">🌿</div>
+    <div class="bg-decoration bg-leaf-3">🍁</div>
+    <div class="bg-decoration bg-mushroom">🍄</div>
+    <div class="bg-decoration bg-flower">🌸</div>
+
+    <!-- Основной контейнер игры -->
+    <div class="game-container">
+        <!-- Панель счёта -->
+        <div class="top-panel">
+            <div class="score-display">
+                <span class="icon">🍎</span>
+                <span id="score">0</span>
+                <span class="label">яблочек</span>
+            </div>
+            <div class="per-click-badge">
+                🖱️ <span id="perClick">1</span> / клик
+            </div>
+            <div class="per-click-badge" style="border-color: #8bc34a60;">
+                ⏱️ <span id="autoPerSec">0</span>/сек
+            </div>
+        </div>
+
+        <!-- Кликабельный ёжик -->
+        <div class="hedgehog-area" id="hedgehogArea">
+            <div class="hedgehog-wrapper">
+                <span class="hedgehog-emoji" id="hedgehogEmoji">🦔</span>
+            </div>
+        </div>
+
+        <!-- Панель улучшений -->
+        <div class="upgrades-panel">
+            <div class="upgrades-title">🌲 Лесные улучшения 🌲</div>
+            <div id="upgradesContainer">
+                <!-- Улучшения генерируются динамически -->
+            </div>
+            <button class="reset-btn" id="resetBtn" title="Сбросить весь прогресс">🔄 Начать заново</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ============ СОСТОЯНИЕ ИГРЫ ============
+            const state = {
+                score: 0,
+                clickPower: 1,
+                autoPerSecond: 0,
+                upgrades: {}, // { id: { count, baseCost, costMultiplier, power, type } }
+                lastSaveTime: Date.now(),
+            };
+
+            // ============ ОПРЕДЕЛЕНИЯ УЛУЧШЕНИЙ ============
+            const upgradeDefinitions = [{
+                id: 'mushroom',
+                name: 'Волшебный гриб',
+                desc: 'Увеличивает силу клика на +1',
+                icon: '🍄',
+                baseCost: 15,
+                costMultiplier: 1.55,
+                power: 1,
+                type: 'click',
+                getEffect: (count) => `+${count} к клику`,
+            }, {
+                id: 'ant',
+                name: 'Муравей-помощник',
+                desc: 'Автоматически собирает яблочки',
+                icon: '🐜',
+                baseCost: 40,
+                costMultiplier: 1.5,
+                power: 0.5,
+                type: 'auto',
+                getEffect: (count) => `${(count * 0.5).toFixed(1)} ябл/сек`,
+            }, {
+                id: 'squirrel',
+                name: 'Белка-собиратель',
+                desc: 'Шустро носит яблоки каждую секунду',
+                icon: '🐿️',
+                baseCost: 150,
+                costMultiplier: 1.48,
+                power: 2,
+                type: 'auto',
+                getEffect: (count) => `${count * 2} ябл/сек`,
+            }, {
+                id: 'fox',
+                name: 'Лис-бухгалтер',
+                desc: 'Удваивает весь автодоход!',
+                icon: '🦊',
+                baseCost: 600,
+                costMultiplier: 2.2,
+                power: 0, // особый тип — множитель автосбора
+                type: 'autoMultiplier',
+                getEffect: (count) => `×${(2 ** count)} к автосбору`,
+            }, {
+                id: 'hedgehog_family',
+                name: 'Семейство ёжиков',
+                desc: 'Каждый клик приносит +3 доп. яблока',
+                icon: '🦔',
+                baseCost: 300,
+                costMultiplier: 1.6,
+                power: 3,
+                type: 'click',
+                getEffect: (count) => `+${count * 3} к клику`,
+            }, {
+                id: 'apple_tree',
+                name: 'Яблоневый сад',
+                desc: 'Мощный автосборщик',
+                icon: '🌳',
+                baseCost: 1200,
+                costMultiplier: 1.45,
+                power: 8,
+                type: 'auto',
+                getEffect: (count) => `${count * 8} ябл/сек`,
+            }, {
+                id: 'owl',
+                name: 'Мудрая сова',
+                desc: 'Утраивает силу клика!',
+                icon: '🦉',
+                baseCost: 2500,
+                costMultiplier: 2.5,
+                power: 0,
+                type: 'clickMultiplier',
+                getEffect: (count) => `×${(3 ** count)} к клику`,
+            }, ];
+            // ============ ИНИЦИАЛИЗАЦИЯ УЛУЧШЕНИЙ В STATE ============
+            upgradeDefinitions.forEach(def => {
+                if (!(def.id in state.upgrades)) {
+                    state.upgrades[def.id] = {
+                        count: 0,
+                        baseCost: def.baseCost,
+                        costMultiplier: def.costMultiplier,
+                        power: def.power,
+                        type: def.type,
+                    };
+                }
+            });
+
+            // ============ ЗАГРУЗКА И СОХРАНЕНИЕ ============
+            function saveGame() {
+                state.lastSaveTime = Date.now();
+                localStorage.setItem('hedgehogClickerSave', JSON.stringify(state));
+            }
+
+            function loadGame() {
+                const saved = localStorage.getItem('hedgehogClickerSave');
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        // Восстанавливаем основные поля
+                        state.score = parsed.score ?? 0;
+                        state.clickPower = parsed.clickPower ?? 1;
+                        state.autoPerSecond = parsed.autoPerSecond ?? 0;
+                        state.lastSaveTime = parsed.lastSaveTime ?? Date.now();
+                        // Восстанавливаем улучшения
+                        if (parsed.upgrades) {
+                            Object.keys(parsed.upgrades).forEach(id => {
+                                if (state.upgrades[id]) {
+                                    state.upgrades[id].count = parsed.upgrades[id].count ?? 0;
+                                }
+                            });
+                        }
+                        // Пересчитываем бонусы
+                        recalculateBonuses();
+                    } catch (e) {
+                        console.warn('Ошибка загрузки сохранения, начинаем новую игру');
+                        recalculateBonuses();
+                    }
+                }
+            }
+
+            // ============ ПЕРЕСЧЁТ БОНУСОВ ============
+            function recalculateBonuses() {
+                let clickPower = 1;
+                let autoPerSecond = 0;
+                let autoMultiplier = 1;
+                let clickMultiplier = 1;
+
+                upgradeDefinitions.forEach(def => {
+                    const count = state.upgrades[def.id]?.count || 0;
+                    if (count === 0) return;
+
+                    switch (def.type) {
+                        case 'click':
+                            clickPower += def.power * count;
+                            break;
+                        case 'auto':
+                            autoPerSecond += def.power * count;
+                            break;
+                        case 'autoMultiplier':
+                            autoMultiplier *= Math.pow(2, count);
+                            break;
+                        case 'clickMultiplier':
+                            clickMultiplier *= Math.pow(3, count);
+                            break;
+                    }
+                });
+
+                state.clickPower = clickPower * clickMultiplier;
+                state.autoPerSecond = autoPerSecond * autoMultiplier;
+            }
+
+            // ============ ПОКУПКА УЛУЧШЕНИЯ ============
+            function getUpgradeCost(def) {
+                const count = state.upgrades[def.id]?.count || 0;
+                return Math.floor(def.baseCost * Math.pow(def.costMultiplier, count));
+            }
+
+            function buyUpgrade(defId) {
+                const def = upgradeDefinitions.find(d => d.id === defId);
+                if (!def) return false;
+                const cost = getUpgradeCost(def);
+                if (state.score < cost) return false;
+
+                state.score -= cost;
+                state.upgrades[defId].count++;
+                recalculateBonuses();
+                saveGame();
+                updateUI();
+                return true;
+            }
+
+            // ============ КЛИК ПО ЁЖИКУ ============
+            function handleClick(event) {
+                const area = document.getElementById('hedgehogArea');
+                const emoji = document.getElementById('hedgehogEmoji');
+
+                // Добавляем очки
+                const earned = state.clickPower;
+                state.score += earned;
+
+                // Анимация пульса
+                area.classList.remove('pulse-anim');
+                void area.offsetWidth; // reflow
+                area.classList.add('pulse-anim');
+
+                // Меняем эмодзи на мгновение
+                emoji.textContent = '🦔✨';
+                setTimeout(() => {
+                    emoji.textContent = '🦔';
+                }, 120);
+
+                // Всплывающий индикатор
+                spawnClickIndicator(event, earned);
+
+                // Частицы
+                spawnParticles(event);
+
+                // Сохраняем и обновляем UI
+                saveGame();
+                updateUI();
+            }
+
+            function spawnClickIndicator(event, amount) {
+                const area = document.getElementById('hedgehogArea');
+                const rect = area.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                const indicator = document.createElement('span');
+                indicator.className = 'click-indicator';
+                indicator.textContent = `+${amount}`;
+                indicator.style.left = x + 'px';
+                indicator.style.top = y + 'px';
+                // Случайное смещение
+                indicator.style.transform = `translate(-50%, -50%)`;
+                indicator.style.color = amount >= 10 ? '#ffda6b' : '#ffffff';
+
+                area.appendChild(indicator);
+                indicator.addEventListener('animationend', () => {
+                    indicator.remove();
+                });
+            }
+
+            function spawnParticles(event) {
+                const area = document.getElementById('hedgehogArea');
+                const rect = area.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                const particleEmojis = ['🍎', '✨', '🍂', '🌰', '⭐', '💫', '🍏'];
+                const count = Math.min(state.clickPower, 7);
+
+                for (let i = 0; i < count; i++) {
+                    const particle = document.createElement('span');
+                    particle.className = 'particle';
+                    particle.textContent = particleEmojis[Math.floor(Math.random() * particleEmojis.length)];
+                    particle.style.left = x + 'px';
+                    particle.style.top = y + 'px';
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 30 + Math.random() * 70;
+                    particle.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+                    particle.style.setProperty('--dy', Math.sin(angle) * distance - 20 - Math.random() * 50 + 'px');
+                    particle.style.fontSize = (0.8 + Math.random() * 1.4) + 'rem';
+                    particle.style.animationDuration = (0.5 + Math.random() * 0.7) + 's';
+
+                    area.appendChild(particle);
+                    particle.addEventListener('animationend', () => {
+                        particle.remove();
+                    });
+                }
+            }
+
+            // ============ АВТОСБОР ============
+            let lastAutoTick = Date.now();
+
+            function autoTick() {
+                const now = Date.now();
+                const delta = (now - lastAutoTick) / 1000;
+                lastAutoTick = now;
+
+                if (state.autoPerSecond > 0 && delta > 0) {
+                    const earned = state.autoPerSecond * delta;
+                    state.score += earned;
+                    // Ограничиваем точность
+                    state.score = Math.round(state.score * 100) / 100;
+                    saveGame();
+                    updateUI();
+                }
+
+                // Также начисляем очки за время, пока игра была неактивна (оффлайн-прогресс, макс 1 час)
+                if (state.lastSaveTime && state.autoPerSecond > 0) {
+                    const offlineDelta = (now - state.lastSaveTime) / 1000;
+                    if (offlineDelta > 5 && offlineDelta < 3600) {
+                        const offlineEarned = state.autoPerSecond * offlineDelta;
+                        state.score += offlineEarned;
+                        state.score = Math.round(state.score * 100) / 100;
+                        state.lastSaveTime = now;
+                        saveGame();
+                        updateUI();
+                    }
+                }
+                state.lastSaveTime = now;
+            }
+
+            // ============ ОТРИСОВКА UI ============
+            function updateUI() {
+                // Счёт
+                const scoreEl = document.getElementById('score');
+                const displayScore = Math.floor(state.score);
+                scoreEl.textContent = displayScore.toLocaleString('ru-RU');
+
+                // Сила клика
+                const perClickEl = document.getElementById('perClick');
+                const displayClick = state.clickPower >= 10 ? Math.floor(state.clickPower) : state
+                .clickPower;
+                perClickEl.textContent = (typeof displayClick === 'number' && !Number.isInteger(displayClick)) ?
+                    displayClick.toFixed(1) : displayClick;
+
+                // Автосбор
+                const autoEl = document.getElementById('autoPerSec');
+                const displayAuto = state.autoPerSecond >= 1 ? Math.floor(state.autoPerSecond) : state
+                .autoPerSecond;
+                autoEl.textContent = (typeof displayAuto === 'number' && !Number.isInteger(displayAuto)) ?
+                    displayAuto.toFixed(1) : displayAuto;
+
+                // Улучшения
+                renderUpgrades();
+            }
+
+            function renderUpgrades() {
+                const container = document.getElementById('upgradesContainer');
+                container.innerHTML = '';
+
+                upgradeDefinitions.forEach(def => {
+                    const count = state.upgrades[def.id]?.count || 0;
+                    const cost = getUpgradeCost(def);
+                    const canAfford = state.score >= cost;
+                    const card = document.createElement('div');
+                    card.className = 'upgrade-card';
+                    if (!canAfford) card.classList.add('locked');
+                    if (count > 0) card.classList.add('owned-highlight');
+
+                    card.innerHTML = `
+                        <span class="upgrade-icon">${def.icon}</span>
+                        <div class="upgrade-info">
+                            <div class="upgrade-name">${def.name} ${count > 0 ? `<span class="upgrade-owned-count">×${count}</span>` : ''}</div>
+                            <div class="upgrade-desc">${def.desc} (${def.getEffect(count)})</div>
+                        </div>
+                        <div class="upgrade-cost">🍎 ${cost.toLocaleString('ru-RU')}</div>
+                    `;
+
+                    card.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (canAfford) {
+                            const success = buyUpgrade(def.id);
+                            if (success) {
+                                // Анимация успешной покупки
+                                card.style.transform = 'scale(0.93)';
+                                setTimeout(() => {
+                                    card.style.transform = '';
+                                }, 150);
+                            }
+                        } else {
+                            // Потрясти карточку
+                            card.style.animation = 'none';
+                            card.offsetHeight;
+                            card.style.animation = 'shake 0.4s ease';
+                            setTimeout(() => {
+                                card.style.animation = '';
+                            }, 400);
+                        }
+                    });
+
+                    container.appendChild(card);
+                });
+            }
+
+            // Добавляем анимацию тряски
+            const shakeStyle = document.createElement('style');
+            shakeStyle.textContent = `
+                @keyframes shake {
+                    0%,100% { transform: translateX(0); }
+                    20% { transform: translateX(-6px); }
+                    40% { transform: translateX(6px); }
+                    60% { transform: translateX(-4px); }
+                    80% { transform: translateX(3px); }
+                }
+            `;
+            document.head.appendChild(shakeStyle);
+
+            // ============ СБРОС ============
+            function resetGame() {
+                if (confirm('Вы уверены, что хотите сбросить весь прогресс? Все яблочки и улучшения пропадут! 🦔💔')) {
+                    state.score = 0;
+                    state.clickPower = 1;
+                    state.autoPerSecond = 0;
+                    state.lastSaveTime = Date.now();
+                    Object.keys(state.upgrades).forEach(id => {
+                        state.upgrades[id].count = 0;
+                    });
+                    recalculateBonuses();
+                    saveGame();
+                    updateUI();
+                }
+            }
+
+            // ============ ПРИВЯЗКА СОБЫТИЙ ============
+            document.getElementById('hedgehogArea').addEventListener('click', handleClick);
+            document.getElementById('hedgehogArea').addEventListener('touchend', (e) => {
+                e.preventDefault();
+                // Используем координаты из touch события
+                const touch = e.changedTouches[0];
+                if (touch) {
+                    const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+                    handleClick(fakeEvent);
+                }
+            });
+            document.getElementById('resetBtn').addEventListener('click', resetGame);
+
+            // ============ ЗАПУСК ============
+            loadGame();
+            updateUI();
+            lastAutoTick = Date.now();
+            state.lastSaveTime = state.lastSaveTime || Date.now();
+
+            // Автосбор каждые 100мс
+            setInterval(autoTick, 100);
+
+            // Сохранение каждые 5 секунд (дополнительно)
+            setInterval(() => {
+                state.lastSaveTime = Date.now();
+                saveGame();
+            }, 5000);
+
+            // Сохранение при уходе со страницы
+            window.addEventListener('beforeunload', () => {
+                state.lastSaveTime = Date.now();
+                saveGame();
+            });
+
+            console.log('🦔 Ёжик Кликер готов! Кликай по ёжику и собирай яблочки! 🍎');
+            console.log('🌲 Улучшения: гриб, муравей, белка, лис, семейство ёжиков, сад, сова.');
+            console.log('💾 Прогресс сохраняется автоматически в браузере.');
+        })();
+    </script>
+</body>
+</html>
